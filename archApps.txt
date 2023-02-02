@@ -4,6 +4,7 @@ alacritty
 bat
 bluez
 bluez-utils
+bridge-utils
 catppuccin-cursors-mocha
 catppuccin-gtk-theme-mocha
 catppuccin-mocha-grub-theme-git
