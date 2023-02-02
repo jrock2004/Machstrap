@@ -1,6 +1,7 @@
 # Variables
 ##############################################
 OS=""
+USE_BREW=FALSE
 USE_DESKTOP_ENV=FALSE
 ARCH_APPS=()
 DOTFILES="$HOME/.dotfiles"
