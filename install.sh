@@ -71,8 +71,7 @@ initialQuestions() {
 initForArch() {
   echo "Checking for some apps we need to make sure are there for this script to work"
 
-  mapfile -t ARCH_APPS < ./archApps.txt
-
+  mapfile -t ARCH_APPS < <(curl -s https://raw.githubusercontent.com/jrock2004/Machstrap/main/archApps.txt)
 
   if [ -z "$(command -v git)" ]; then
     echo "Git is not installed. Installing now..."
