@@ -1,9 +1,9 @@
 # Variables
 ##############################################
 OS=""
-USE_BREW=FALSE
 USE_DESKTOP_ENV=FALSE
 ARCH_APPS=()
+POP_APPS=()
 DOTFILES="$HOME/.dotfiles"
 DOTFILES_REPO="https://github.com/jrock2004/dotfiles"
 
@@ -32,22 +32,6 @@ initialQuestions() {
       echo "Invalid choice."
 
       exit 1
-      ;;
-  esac
-
-  echo "Do you want to use brew? (y/[n])"
-
-  read -rp "Use brew? " choice_brew
-
-  case $choice_brew in
-    y)
-      USE_BREW=TRUE
-      ;;
-    n)
-      USE_BREW=FALSE
-      ;;
-    *)
-      USE_BREW=FALSE
       ;;
   esac
 
@@ -104,6 +88,30 @@ initForArch() {
   fi
 }
 
+initForDebian() {
+  echo "Checking for some apps we need to make sure are there for this script to work"
+
+  mapfile -t POP_APPS < <(curl -s https://raw.githubusercontent.com/jrock2004/Machstrap/main/popApps.txt)
+
+  if [ -z "$(command -v git)" ]; then
+    echo "Git is not installed. Installing now..."
+
+    sudo apt-get install git
+  fi
+
+  if [ -z "$(command -v curl)" ]; then
+    echo "Curl is not installed. Installing now..."
+
+    sudo apt-get install curl
+  fi
+
+  if [ -z "$(command -v wget)" ]; then
+    echo "Wget is not installed. Installing now..."
+
+    sudo apt-get install wget
+  fi
+}
+
 setupDirectories() {
   echo "Setting up directories"
 
@@ -132,7 +140,7 @@ installAppsForArch () {
   echo "${ARCH_APPS[@]}" | xargs paru -S
 
   if [ "$USE_DESKTOP_ENV" = "FALSE" ]; then
-    echo "Installing some apps for i3"
+    echo "Installing some apps since we do not have a desktop environment"
 
     paru -S cronie firefox pavucontrol sddm-git
 
@@ -147,6 +155,57 @@ installAppsForArch () {
     curl -o /path/to/file https://example.com/file
     [ -d "/etc/udev/rules.d" ] && sudo curl -o /etc/udev/rules.d/91-keyboard-mouse-wakeup.conf https://raw.githubusercontent.com/jrock2004/Machstrap/main/91-keyboard-mouse-wakeup.conf
   fi
+}
+
+installAppsForDebian () {
+  echo "Installing apps for debian based systems"
+
+  echo "${POP_APPS[@]}" | xargs sudo apt-get install 
+
+  # 1Password
+  curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg
+  echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/amd64 stable main' | sudo tee /etc/apt/sources.list.d/1password.list
+  sudo mkdir -p /etc/debsig/policies/AC2D62742012EA22
+  curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol
+  sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22
+  curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg
+  sudo apt update && sudo apt install 1password
+
+  # Golang
+  curl -OL https://golang.org/dl/go1.16.7.linux-amd64.tar.gz
+  sudo tar -C /usr/local -xvf go1.16.7.linux-amd64.tar.gz
+  rm go1.16.7.linux-amd64.tar.gz
+
+  # Starship
+  curl -sS https://starship.rs/install.sh | sh
+
+  # Lazygit
+  LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+  curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
+  tar xf lazygit.tar.gz lazygit
+  sudo install lazygit /usr/local/bin
+  rm lazygit.tar.gz
+  rm lazygit
+  rm -Rf ~/.config/lazygit
+}
+
+installAppsForMac () {
+  echo "Installing apps for your mac"
+
+  if [ -z "$(command -v brew)" ]; then
+    sudo curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh | bash --login
+
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/jcostanzo/.zprofile
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  fi
+
+  brew bundle
+}
+
+setupFzf () {
+  echo "Setting up FZF"
+
+  "$(brew --prefix)"/opt/fzf/install --key-bindings --completion --no-update-rc --no-bash --no-fish
 }
 
 setupStow() {
@@ -248,7 +307,23 @@ if [ "$OS" = "arch" ]; then
   installAppsForArch
   setupStow
   setupVolta
-  # setupRust
+  setupRust
+  setupNeovim
+elif [ "$OS" = "popos" ]; then
+  initForDebian
+  setupDirectories
+  installAppsForDebian
+  setupStow
+  setupVolta
+  setupRust
+  setupNeovim
+elif [ "$OS" = "mac" ]; then
+  setupDirectories
+  installAppsForMac
+  setupStow
+  setupFzf
+  setupVolta
+  setupRust
   setupNeovim
 else
   echo "Not ready yet"
