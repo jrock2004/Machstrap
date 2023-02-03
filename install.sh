@@ -4,8 +4,7 @@ OS=""
 USE_BREW=FALSE
 USE_DESKTOP_ENV=FALSE
 ARCH_APPS=()
-DOTFILES=".dotfiles"
-DOTFILES_REPO="https://github.com/jrock2004/dotfiles"
+DOTFILES="$HOME/.dotfiles"
 
 # Helper Functions
 ##############################################
@@ -120,7 +119,8 @@ setupDirectories() {
   else
     echo "Cloning dotfiles repo"
 
-    git clone "$DOTFILES_REPO $DOTFILES"
+    # git clone "$DOTFILES_REPO $DOTFILES"
+    git clone https://github.com/jrock2004/dotfiles .dotfiles
   fi
 
   cd "$HOME/.dotfiles" || exit 1
