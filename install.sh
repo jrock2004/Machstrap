@@ -115,7 +115,7 @@ setupDirectories() {
     mkdir -p "$HOME/Pictures/wallpapers"
   fi
 
-  if [ ! -d "HOME/.dotfiles" ]; then
+  if [ -d "HOME/.dotfiles" ]; then
     echo "Dotfiles directory already exists. Skipping..."
   else
     echo "Cloning dotfiles repo"
