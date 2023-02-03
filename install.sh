@@ -5,6 +5,7 @@ USE_BREW=FALSE
 USE_DESKTOP_ENV=FALSE
 ARCH_APPS=()
 DOTFILES="$HOME/.dotfiles"
+DOTFILES_REPO="https://github.com/jrock2004/dotfiles"
 
 # Helper Functions
 ##############################################
@@ -114,16 +115,15 @@ setupDirectories() {
     mkdir -p "$HOME/Pictures/wallpapers"
   fi
 
-  if [ -d "HOME/.dotfiles" ]; then
+  if [ -d "$DOTFILES" ]; then
     echo "Dotfiles directory already exists. Skipping..."
   else
     echo "Cloning dotfiles repo"
 
-    # git clone "$DOTFILES_REPO $DOTFILES"
-    git clone "https://github.com/jrock2004/dotfiles .dotfiles"
+    git clone "$DOTFILES_REPO" "$DOTFILES"
   fi
 
-  cd "$HOME/.dotfiles" || exit 1
+  cd "$DOTFILES" || exit 1
 }
 
 installAppsForArch () {
@@ -144,7 +144,8 @@ installAppsForArch () {
     sudo systemctl enable slock@jcostanzo.service
 
     # Copy bluetooth keyboard rule
-    [ -d "/etc/udev/rules.d" ] && sudo cp files/91-keyboard-mouse-wakeup.conf /etc/udev/rules.d/
+    curl -o /path/to/file https://example.com/file
+    [ -d "/etc/udev/rules.d" ] && sudo curl -o /etc/udev/rules.d/91-keyboard-mouse-wakeup.conf https://raw.githubusercontent.com/jrock2004/Machstrap/main/91-keyboard-mouse-wakeup.conf
   fi
 }
 
@@ -247,7 +248,7 @@ if [ "$OS" = "arch" ]; then
   installAppsForArch
   setupStow
   setupVolta
-  setupRust
+  # setupRust
   setupNeovim
 else
   echo "Not ready yet"
