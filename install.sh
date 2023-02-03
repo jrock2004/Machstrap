@@ -120,7 +120,7 @@ setupDirectories() {
     echo "Cloning dotfiles repo"
 
     # git clone "$DOTFILES_REPO $DOTFILES"
-    git clone https://github.com/jrock2004/dotfiles .dotfiles
+    git clone "https://github.com/jrock2004/dotfiles .dotfiles"
   fi
 
   cd "$HOME/.dotfiles" || exit 1
