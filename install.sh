@@ -5,7 +5,7 @@ USE_BREW=FALSE
 USE_DESKTOP_ENV=FALSE
 ARCH_APPS=()
 DOTFILES="$HOME/.dotfiles"
-DOTFILES_REPO="https://github.com/jrock2004/dotfiles.git"
+DOTFILES_REPO="https://github.com/jrock2004/dotfiles"
 
 # Helper Functions
 ##############################################
