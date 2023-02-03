@@ -309,7 +309,7 @@ if [ "$OS" = "arch" ]; then
   setupVolta
   setupRust
   setupNeovim
-elif [ "$OS" = "popos" ]; then
+elif [ "$OS" = "debian" ]; then
   initForDebian
   setupDirectories
   installAppsForDebian
